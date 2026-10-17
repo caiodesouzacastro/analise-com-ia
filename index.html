@@ -239,6 +239,38 @@ footer p{max-width:80ch}
 .case .steps{margin:6px 0 14px;padding-left:22px}
 .case .steps li{margin-bottom:6px}
 .inl b{display:inline!important;margin:0!important}
+/* título em uma linha no desktop; no celular quebra antes de "com IA" */
+.top h1{max-width:none}
+.top h1 .nw{white-space:nowrap}
+/* prints-chave em largura cheia e os demais recolhidos */
+.keyshots{display:grid;gap:26px;margin-top:22px}
+.keyshots figcaption{font-size:14.5px}
+details.more{margin-top:24px;border:1px solid var(--line);border-radius:var(--radius-m);padding:0 18px}
+details.more summary{cursor:pointer;padding:14px 0;font-weight:600;color:var(--navy)}
+details.more[open]{padding-bottom:18px}
+details.more .gallery{margin-top:4px}
+#exemplo figure a{cursor:zoom-in}
+/* visualizador de prints */
+.lb{position:fixed;inset:0;z-index:50;background:rgba(10,44,69,.9);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.on{display:flex}
+.lb figure{max-width:min(1200px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center}
+.lb figure img{max-width:100%;max-height:calc(100vh - 110px);width:auto;border:0}
+.lb figcaption{color:#fff;text-align:center;font-size:15px}
+.lb button{position:absolute;top:10px;right:14px;background:none;border:0;color:#fff;font-size:36px;line-height:1;cursor:pointer;padding:6px 10px}
+/* erros em cartões abaixo de 700 px */
+@media (max-width:699px){
+.tbl.cards thead{display:none}
+.tbl.cards,.tbl.cards tbody,.tbl.cards tr,.tbl.cards td{display:block;width:100%}
+.tbl.cards tr{border:1px solid var(--line);border-radius:var(--radius-m);padding:14px 16px;margin-bottom:14px;background:var(--surface)}
+.tbl.cards td{border:0;padding:4px 0}
+.tbl.cards td:first-child{font-weight:700;color:var(--navy-ink);font-size:16px;padding-bottom:6px}
+.tbl.cards td[data-l]::before{content:attr(data-l) ": ";font-weight:600;color:var(--navy)}
+}
+/* degradê indicando mais abas */
+@media (max-width:760px){
+.tabs::after{content:"";position:absolute;top:0;right:0;bottom:1px;width:48px;pointer-events:none;background:linear-gradient(to right,rgba(255,255,255,0),var(--surface) 80%);transition:opacity .2s}
+.tabs.end::after{opacity:0}
+}
 </style>
 </head>
 <body>
@@ -252,7 +284,7 @@ footer p{max-width:80ch}
       <rect x="312" y="32" width="16" height="16" transform="rotate(45 320 40)" fill="#A1C62E"/>
       <path d="M360 54 V90 H200 V54" fill="none" stroke="#A1C62E" stroke-width="2" stroke-dasharray="5 5"/>
     </svg>
-    <h1>Análise de dados com IA</h1>
+    <h1>Análise de dados <span class="nw">com IA</span></h1>
     <p class="lead">Como usar IA para codificar entrevistas e analisar bases sem perder o controle do que a fonte diz.</p>
     <div class="fio"><strong>Todo código e todo número precisam apontar para a fonte.</strong> O que a IA não consegue mostrar no texto ou no dado não entra na análise.</div>
   </div>
@@ -290,20 +322,20 @@ footer p{max-width:80ch}
   <div class="wrap">
     <div class="intro"><h2>Erros e soluções</h2></div>
     <div class="case">
-      <div class="scroll"><table class="tbl">
+      <div class="scroll"><table class="tbl cards">
         <thead><tr><th>Erro</th><th>Como aparece</th><th>Solução</th></tr></thead>
         <tbody>
-<tr><td>Categoria forçada</td><td>todo trecho ganha um código, inclusive o que não fala do tema</td><td>regra explícita de SEM CÓDIGO no prompt e conferência dos trechos codificados com uma frase só</td></tr>
-<tr><td>Citação inventada ou recortada</td><td>frase parecida com a fala, ou cortada de um jeito que muda o sentido</td><td>exigir citação literal entre aspas e conferir letra por letra</td></tr>
-<tr><td>Ironia lida ao pé da letra</td><td>"adorei" vira avaliação positiva</td><td>marcar DÚVIDA e revisar à mão as falas com ironia</td></tr>
-<tr><td>Contexto perdido</td><td>"essa sim funcionou" citado sem dizer qual formação</td><td>ler cada trecho com o anterior; incluir o contexto na citação</td></tr>
-<tr><td>Voz que destoa apagada</td><td>o resumo fica com a média e some quem tem experiência diferente</td><td>pedir separadamente o que cada entrevistado diz de único</td></tr>
-<tr><td>Fala genérica vira evidência</td><td>"formação é sempre boa" usado como avaliação</td><td>tratar falas vagas como SEM CÓDIGO ou DÚVIDA</td></tr>
-<tr><td>Contagem vira importância</td><td>quadro com número de trechos por categoria</td><td>reportar frequência só como descrição, nunca como peso</td></tr>
-<tr><td>Unidade de contagem errada</td><td>soma por escola tratada como número de pessoas</td><td>dizer a unidade antes e conferir contra um total publicado</td></tr>
-<tr><td>Arquivo ou variável inventados</td><td>código para um arquivo que não existe na base pública</td><td>colar a lista de colunas e o dicionário antes de pedir o código</td></tr>
-<tr><td>Rótulo errado no resultado</td><td>a ressalva fica no chat e o código imprime "Total de docentes"</td><td>ler o print final do código e corrigir o rótulo</td></tr>
-<tr><td>Dado pessoal na ferramenta</td><td>transcrição com nome e escola colada num chat aberto</td><td>anonimizar antes; usar ferramenta institucional quando houver</td></tr>
+<tr><td>Categoria forçada</td><td data-l="Como aparece">todo trecho ganha um código, inclusive o que não fala do tema</td><td data-l="Solução">regra explícita de SEM CÓDIGO no prompt e conferência dos trechos codificados com uma frase só</td></tr>
+<tr><td>Citação inventada ou recortada</td><td data-l="Como aparece">frase parecida com a fala, ou cortada de um jeito que muda o sentido</td><td data-l="Solução">exigir citação literal entre aspas e conferir letra por letra</td></tr>
+<tr><td>Ironia lida ao pé da letra</td><td data-l="Como aparece">"adorei" vira avaliação positiva</td><td data-l="Solução">marcar DÚVIDA e revisar à mão as falas com ironia</td></tr>
+<tr><td>Contexto perdido</td><td data-l="Como aparece">"essa sim funcionou" citado sem dizer qual formação</td><td data-l="Solução">ler cada trecho com o anterior; incluir o contexto na citação</td></tr>
+<tr><td>Voz que destoa apagada</td><td data-l="Como aparece">o resumo fica com a média e some quem tem experiência diferente</td><td data-l="Solução">pedir separadamente o que cada entrevistado diz de único</td></tr>
+<tr><td>Fala genérica vira evidência</td><td data-l="Como aparece">"formação é sempre boa" usado como avaliação</td><td data-l="Solução">tratar falas vagas como SEM CÓDIGO ou DÚVIDA</td></tr>
+<tr><td>Contagem vira importância</td><td data-l="Como aparece">quadro com número de trechos por categoria</td><td data-l="Solução">reportar frequência só como descrição, nunca como peso</td></tr>
+<tr><td>Unidade de contagem errada</td><td data-l="Como aparece">soma por escola tratada como número de pessoas</td><td data-l="Solução">dizer a unidade antes e conferir contra um total publicado</td></tr>
+<tr><td>Arquivo ou variável inventados</td><td data-l="Como aparece">código para um arquivo que não existe na base pública</td><td data-l="Solução">colar a lista de colunas e o dicionário antes de pedir o código</td></tr>
+<tr><td>Rótulo errado no resultado</td><td data-l="Como aparece">a ressalva fica no chat e o código imprime "Total de docentes"</td><td data-l="Solução">ler o print final do código e corrigir o rótulo</td></tr>
+<tr><td>Dado pessoal na ferramenta</td><td data-l="Como aparece">transcrição com nome e escola colada num chat aberto</td><td data-l="Solução">anonimizar antes; usar ferramenta institucional quando houver</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -330,9 +362,12 @@ footer p{max-width:80ch}
       <div class="said bad inl"><b>Resultado:</b> 603.604 pela soma. A Sinopse Estatística diz 500.006. Diferença de 20,7%, porque quem dá aula em mais de uma escola aparece mais de uma vez. O próprio dicionário do Inep avisa que a soma dos microdados não dá o total da UF.</div>
       <div class="human inl"><b>Lição:</b> o aviso fica no chat; o número sai do código com o nome errado.</div>
       <p class="note">Fonte: Inep, Microdados e Sinopse Estatística da Educação Básica 2024 (tabela 2.1).</p>
-      <div class="gallery">
+      <div class="keyshots">
+<figure><a href="assets/caso-quanti/T4_codigo_recorte.png"><img src="assets/caso-quanti/T4_codigo_recorte.png" alt="Bloco de código que soma QT_DOC_BAS e imprime Total de docentes"></a><figcaption>O código imprime o resultado como &quot;Total de docentes&quot;.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T1b_resposta.png"><img src="assets/caso-quanti/T1b_resposta.png" alt="Resposta dizendo que não sabe o número com segurança"></a><figcaption>Não inventou número e alertou para professores e vínculos.</figcaption></figure>
+      </div>
+      <details class="more"><summary>Ver todos os prints do teste (11)</summary><div class="gallery">
 <figure><a href="assets/caso-quanti/T1a_pergunta.png"><img src="assets/caso-quanti/T1a_pergunta.png" alt="Mensagem pedindo o número de docentes sem pesquisar na web" loading="lazy"></a><figcaption>Sem dados: o pedido, sem pesquisa na web.</figcaption></figure>
-<figure><a href="assets/caso-quanti/T1b_resposta.png"><img src="assets/caso-quanti/T1b_resposta.png" alt="Resposta dizendo que não sabe o número com segurança" loading="lazy"></a><figcaption>Não inventou número e alertou para professores e vínculos.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T2a_pergunta.png"><img src="assets/caso-quanti/T2a_pergunta.png" alt="Mensagem pedindo o código em Python" loading="lazy"></a><figcaption>Pedido o código, sem dizer qual arquivo.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T2b_codigo.png"><img src="assets/caso-quanti/T2b_codigo.png" alt="Código que lê um arquivo de docentes e usa um identificador individual" loading="lazy"></a><figcaption>Código para um arquivo de docentes com identificador individual, que não existe nos microdados públicos.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T2c_ressalva.png"><img src="assets/caso-quanti/T2c_ressalva.png" alt="Texto com a ressalva sobre o identificador individual" loading="lazy"></a><figcaption>A ressalva sobre o identificador ficou no texto.</figcaption></figure>
@@ -342,9 +377,8 @@ footer p{max-width:80ch}
 <figure><a href="assets/caso-quanti/T3d_ressalva.png"><img src="assets/caso-quanti/T3d_ressalva.png" alt="Resposta pedindo a lista de colunas ou o dicionário de dados" loading="lazy"></a><figcaption>Pediu a lista de colunas.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T4a_pergunta.png"><img src="assets/caso-quanti/T4a_pergunta.png" alt="Mensagem com a lista de colunas de docentes" loading="lazy"></a><figcaption>Com as colunas, o pedido do código final.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T4_codigo.png"><img src="assets/caso-quanti/T4_codigo.png" alt="Resposta com a variável escolhida e o código" loading="lazy"></a><figcaption>Somou QT_DOC_BAS.</figcaption></figure>
-<figure><a href="assets/caso-quanti/T4_codigo_recorte.png"><img src="assets/caso-quanti/T4_codigo_recorte.png" alt="Bloco de código que soma QT_DOC_BAS e imprime Total de docentes" loading="lazy"></a><figcaption>O código imprime o resultado como &quot;Total de docentes&quot;.</figcaption></figure>
 <figure><a href="assets/caso-quanti/T4c_ressalva.png"><img src="assets/caso-quanti/T4c_ressalva.png" alt="Texto com a ressalva sobre docentes contados duas vezes" loading="lazy"></a><figcaption>A ressalva ficou só no texto do chat.</figcaption></figure>
-      </div>
+      </div></details>
     </article>
 
     <article class="case" id="caso2">
@@ -353,13 +387,16 @@ footer p{max-width:80ch}
       <div class="said inl"><b>Codificação com livro fechado:</b> a IA acertou a maior parte, pegou a ironia, deixou sem código o trecho fora do tema e a fala genérica, e as citações conferiram. O mais útil foram as dúvidas que ela levantou sobre o livro de códigos.</div>
       <div class="said bad inl"><b>Codificação aberta:</b> propôs sete categorias. Quatro erros: a professora da escola do campo ficou fora da lista de falas que destoam, mesmo com pedido explícito; a fala genérica virou avaliação da formação; um trecho sobre grupo de estudos foi forçado em "participação nas decisões"; e uma citação perdeu o contexto ("essa sim funcionou").</div>
       <div class="human inl"><b>Lição:</b> com regra clara a IA segue a regra; quando ela escolhe o que destacar, quem destoa some.</div>
-      <div class="gallery">
+      <div class="keyshots">
+<figure><a href="assets/caso-quali/P1_06.png"><img src="assets/caso-quali/P1_06.png" alt="Observações da IA sobre trechos sem código e casos que exigem cautela"></a><figcaption>As dúvidas que ela levantou sobre o livro de códigos.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_10.png"><img src="assets/caso-quali/P2_10.png" alt="Lista de falas que destoam da maioria"></a><figcaption>A professora da escola do campo ficou fora da lista de falas que destoam.</figcaption></figure>
+      </div>
+      <details class="more"><summary>Ver todos os prints do teste (17)</summary><div class="gallery">
 <figure><a href="assets/caso-quali/P1_01.png"><img src="assets/caso-quali/P1_01.png" alt="Mensagem com o prompt de codificação com livro de códigos" loading="lazy"></a><figcaption>Codificação com livro fechado: o pedido.</figcaption></figure>
 <figure><a href="assets/caso-quali/P1_02.png"><img src="assets/caso-quali/P1_02.png" alt="Tabela de codificação dos primeiros trechos" loading="lazy"></a><figcaption>Citações literais; a ironia apontada.</figcaption></figure>
 <figure><a href="assets/caso-quali/P1_03.png"><img src="assets/caso-quali/P1_03.png" alt="Tabela de codificação com um trecho sem código" loading="lazy"></a><figcaption>O trecho fora do tema ficou sem código.</figcaption></figure>
 <figure><a href="assets/caso-quali/P1_04.png"><img src="assets/caso-quali/P1_04.png" alt="Tabela de codificação, continuação" loading="lazy"></a><figcaption>Codificação, continuação.</figcaption></figure>
 <figure><a href="assets/caso-quali/P1_05.png"><img src="assets/caso-quali/P1_05.png" alt="Fim da tabela de codificação" loading="lazy"></a><figcaption>A fala genérica ficou sem código.</figcaption></figure>
-<figure><a href="assets/caso-quali/P1_06.png"><img src="assets/caso-quali/P1_06.png" alt="Observações da IA sobre trechos sem código e casos que exigem cautela" loading="lazy"></a><figcaption>As dúvidas que ela levantou sobre o livro de códigos.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_01.png"><img src="assets/caso-quali/P2_01.png" alt="Mensagem com o prompt de codificação aberta" loading="lazy"></a><figcaption>Codificação aberta: o pedido.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_02.png"><img src="assets/caso-quali/P2_02.png" alt="Início da resposta com a primeira categoria" loading="lazy"></a><figcaption>Propôs sete categorias.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_03.png"><img src="assets/caso-quali/P2_03.png" alt="Categoria sobre condições de tempo e acesso" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
@@ -369,11 +406,10 @@ footer p{max-width:80ch}
 <figure><a href="assets/caso-quali/P2_07.png"><img src="assets/caso-quali/P2_07.png" alt="Categoria sobre certificação e carreira" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_08.png"><img src="assets/caso-quali/P2_08.png" alt="Categoria de avaliação geral da formação" loading="lazy"></a><figcaption>A fala genérica virou avaliação da formação; a citação perdeu o contexto (&quot;essa sim funcionou&quot;).</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_09.png"><img src="assets/caso-quali/P2_09.png" alt="Lista de trechos que não se encaixam nas categorias" loading="lazy"></a><figcaption>O trecho fora do tema ficou sem categoria.</figcaption></figure>
-<figure><a href="assets/caso-quali/P2_10.png"><img src="assets/caso-quali/P2_10.png" alt="Lista de falas que destoam da maioria" loading="lazy"></a><figcaption>A professora da escola do campo ficou fora da lista de falas que destoam.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_11.png"><img src="assets/caso-quali/P2_11.png" alt="Quadro consolidado com contagem de trechos e professores" loading="lazy"></a><figcaption>Quadro com número de trechos por categoria.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_12.png"><img src="assets/caso-quali/P2_12.png" alt="Considerações analíticas da resposta" loading="lazy"></a><figcaption>Considerações finais.</figcaption></figure>
 <figure><a href="assets/caso-quali/P2_13.png"><img src="assets/caso-quali/P2_13.png" alt="Recomendação para a codificação" loading="lazy"></a><figcaption>Recomendação da própria IA para a codificação.</figcaption></figure>
-      </div>
+      </div></details>
     </article>
   </div>
 </section>
@@ -383,11 +419,11 @@ footer p{max-width:80ch}
     <div class="intro"><h2>Ferramentas</h2></div>
     <div class="case">
       <div class="scroll"><table class="tbl toolgrid"><tbody>
-<tr><td><b>Chats de uso geral (ChatGPT, Claude, Gemini):</b></td><td>bons para codificar conjuntos pequenos e testar o livro de códigos. Use um projeto ou Gem com as instruções do kit para não repetir as regras a cada conversa.</td></tr>
-<tr><td><b>Softwares de análise qualitativa (como NVivo, ATLAS.ti e MAXQDA):</b></td><td>já trazem recursos de IA e guardam a codificação junto do texto, o que facilita conferir. Valem para conjuntos grandes.</td></tr>
-<tr><td><b>Planilha:</b></td><td>para até algumas dezenas de trechos, a planilha do kit resolve e deixa a conferência visível.</td></tr>
-<tr><td><b>Python ou R:</b></td><td>para dados quantitativos, peça o código à IA, mas rode você mesmo e compare com um total publicado.</td></tr>
-<tr><td><b>Dados pessoais:</b></td><td>prefira a ferramenta institucional da organização quando houver, e anonimize antes em qualquer caso.</td></tr>
+<tr><td><b>Chats de uso geral (ChatGPT, Claude, Gemini)</b></td><td>bons para codificar conjuntos pequenos e testar o livro de códigos. Use um projeto ou Gem com as instruções do kit para não repetir as regras a cada conversa.</td></tr>
+<tr><td><b>Softwares de análise qualitativa (como NVivo, ATLAS.ti e MAXQDA)</b></td><td>já trazem recursos de IA e guardam a codificação junto do texto, o que facilita conferir. Valem para conjuntos grandes.</td></tr>
+<tr><td><b>Planilha</b></td><td>para até algumas dezenas de trechos, a planilha do kit resolve e deixa a conferência visível.</td></tr>
+<tr><td><b>Python ou R</b></td><td>para dados quantitativos, peça o código à IA, mas rode você mesmo e compare com um total publicado.</td></tr>
+<tr><td><b>Dados pessoais</b></td><td>prefira a ferramenta institucional da organização quando houver, e anonimize antes em qualquer caso.</td></tr>
       </tbody></table></div>
     </div>
   </div>
@@ -396,10 +432,6 @@ footer p{max-width:80ch}
 <section class="panel" id="kit" role="tabpanel" aria-labelledby="t-kit">
   <div class="wrap">
     <div class="intro"><h2>Kit para baixar</h2></div>
-    <div class="all">
-      <p><strong>kit-completo.zip</strong> · tudo acima</p>
-      <a class="dl" href="downloads/kit-completo.zip" download>Baixar o kit completo <small>.zip</small></a>
-    </div>
     <div class="kit">
       <article class="ki">
         <div>
@@ -472,9 +504,15 @@ footer p{max-width:80ch}
         </div>
       </article>
     </div>
+    <div class="all" style="margin:26px 0 0">
+      <p><strong>kit-completo.zip</strong> · todos os arquivos acima, num só zip</p>
+      <a class="dl" href="downloads/kit-completo.zip" download>Baixar o kit completo <small>.zip</small></a>
+    </div>
   </div>
 </section>
 </main>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Print ampliado"><button type="button" aria-label="Fechar">×</button><figure><img alt=""><figcaption></figcaption></figure></div>
 
 <footer>
   <div class="wrap">
@@ -515,6 +553,20 @@ document.querySelectorAll('.rail').forEach(rail=>{
  }
  select(1,false);
 });
+/* visualizador: clique amplia; Esc, × ou clique fora da imagem fecham */
+const lb=document.getElementById('lb'), lbImg=lb.querySelector('img'), lbCap=lb.querySelector('figcaption'); let lbFrom=null;
+function lbClose(){lb.classList.remove('on');lbImg.removeAttribute('src');if(lbFrom)lbFrom.focus();}
+document.querySelectorAll('#exemplo figure a').forEach(a=>a.addEventListener('click',ev=>{
+ ev.preventDefault(); lbFrom=a; const img=a.querySelector('img');
+ lbImg.src=a.getAttribute('href'); lbImg.alt=img.alt; lbCap.textContent=a.parentElement.querySelector('figcaption').textContent;
+ lb.classList.add('on'); lb.querySelector('button').focus();
+}));
+lb.addEventListener('click',ev=>{if(ev.target!==lbImg)lbClose();});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&lb.classList.contains('on'))lbClose();});
+/* degradê das abas some quando a rolagem chega ao fim */
+const tabsNav=document.querySelector('.tabs'), tabsRow=tabsNav.querySelector('.wrap');
+function tabsEnd(){tabsNav.classList.toggle('end',tabsRow.scrollLeft+tabsRow.clientWidth>=tabsRow.scrollWidth-2);}
+tabsRow.addEventListener('scroll',tabsEnd,{passive:true}); window.addEventListener('resize',tabsEnd); tabsEnd();
 </script>
 </body>
 </html>

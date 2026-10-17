@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análise de dados com IA</title>
+<meta name="description" content="Como usar IA para codificar entrevistas e analisar bases sem perder o controle do que a fonte diz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E3D5F; --navy-2:#165079; --navy-ink:#0A2C45;
+  --green:#A1C62E; --green-ink:#4D6810; --green-bg:#F0F5E1;
+  --paper:#F4F6F3; --surface:#FFFFFF; --ink:#1B2A35; --muted:#566570; --line:#D6DDE1;
+  --alert:#A9402B; --alert-bg:#FAECE8; --warn:#8A5A0B; --warn-bg:#FBF3E2;
+  --radius-s:6px; --radius-m:10px;
+  --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--navy-2);text-underline-offset:3px}
+a:hover{color:var(--navy-ink)}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{line-height:1.2;margin:0;font-weight:650;letter-spacing:-.01em}
+p{margin:0 0 .8em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+@media (max-width:640px){.wrap{padding:0 16px}body{font-size:16px}}
+
+/* topo */
+.top{background:var(--navy);color:#fff;padding:56px 0 40px;position:relative;overflow:hidden}
+.top h1{font-size:clamp(34px,5vw,56px);font-weight:700;letter-spacing:-.025em;max-width:16ch}
+.top p.lead{font-size:clamp(17px,2vw,20px);max-width:58ch;color:#D7E3EC;margin:18px 0 0}
+.rail-mark{position:absolute;right:24px;top:28px;opacity:.9}
+@media (max-width:860px){.rail-mark{display:none}}
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:36px;border-top:1px solid rgba(255,255,255,.18)}
+.principles div{padding:16px 20px 0 0;font-size:15px;color:#E6EEF4}
+.principles strong{display:block;color:#fff;font-weight:600;margin-bottom:2px}
+@media (max-width:760px){.principles{grid-template-columns:1fr}.principles div{padding:12px 0 0}}
+
+/* abas */
+.tabs{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:0;background:none;font:600 15px var(--font);color:var(--muted);padding:16px 14px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--navy)}
+.tab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--green)}
+section.panel{display:none;padding:44px 0 72px}
+section.panel.on{display:block}
+.intro{max-width:70ch;margin-bottom:32px}
+.intro h2{font-size:30px;margin-bottom:10px;color:var(--navy-ink)}
+.intro p{color:var(--muted)}
+
+/* caminho */
+.flow{display:grid;grid-template-columns:380px 1fr;gap:40px;align-items:start}
+@media (max-width:900px){.flow{grid-template-columns:1fr}}
+.rail{list-style:none;margin:0;padding:0;position:relative}
+.rail::before{content:"";position:absolute;left:21px;top:10px;bottom:10px;width:3px;background:var(--navy);opacity:.18;border-radius:2px}
+.st{position:relative;margin:0 0 6px;scroll-margin-top:64px}
+.st > button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:start;width:100%;padding:10px 12px 10px 0;cursor:pointer;border-radius:var(--radius-m)}
+.st > button:focus-visible{outline:3px solid var(--green)}
+.st .dot{width:44px;height:44px;border-radius:50%;background:var(--surface);border:3px solid var(--navy);display:grid;place-items:center;font:700 16px var(--font);color:var(--navy);position:relative;z-index:1;transition:background .15s,color .15s}
+.st .tt{padding-top:2px}
+.st .tt b{display:block;font-size:17px;font-weight:650;color:var(--ink)}
+.st .tt span{display:block;font-size:14.5px;color:var(--muted);line-height:1.45}
+.st.on .dot{background:var(--navy);color:#fff}
+.st.on > button{background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+.st > button:hover .dot{background:var(--green-bg)}
+.st.on > button:hover .dot{background:var(--navy)}
+.dec{position:relative;display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center;margin:2px 0 10px;padding-right:12px}
+.dec .dia{width:22px;height:22px;transform:rotate(45deg);background:var(--green);margin-left:11px;position:relative;z-index:1;border-radius:3px}
+.dec p{margin:0;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.dec p em{font-style:normal;font-weight:600}
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:28px 30px;position:sticky;top:76px;max-height:calc(100vh - 96px);overflow:auto}
+@media (max-width:900px){.detail.desk{display:none}}
+.detail.inline{display:none;margin:4px 0 14px 58px;padding:20px}
+@media (max-width:900px){.st.on .detail.inline{display:block}}
+@media (max-width:520px){.detail.inline{margin-left:0}}
+.detail h3{font-size:24px;color:var(--navy-ink);margin-bottom:6px}
+.detail .goal{color:var(--muted);margin-bottom:18px}
+.blk{margin-top:20px}
+.blk h4{font-size:14px;font-weight:650;color:var(--navy);margin-bottom:8px;letter-spacing:0}
+.blk ul{margin:0;padding-left:20px}
+.blk li{margin-bottom:6px}
+.err{border-left:3px solid var(--alert);background:var(--alert-bg);padding:12px 14px;border-radius:0 var(--radius-s) var(--radius-s) 0;margin-bottom:8px}
+.err b{color:var(--alert)}
+.err p{margin:4px 0 0}
+.chk li{list-style:none;position:relative;padding-left:4px}
+.chk{padding-left:22px!important}
+.chk li::before{content:"";position:absolute;left:-20px;top:6px;width:13px;height:13px;border:2px solid var(--green-ink);border-radius:3px}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.tools span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:14px}
+.signal li{color:var(--warn)}
+.signal li span{color:var(--ink)}
+
+/* prompt */
+.prompt{position:relative;background:#F1F4F6;border:1px solid var(--line);border-radius:var(--radius-s);margin-top:6px}
+.prompt pre{margin:0;padding:16px 16px 16px;white-space:pre-wrap;word-wrap:break-word;font:400 13.5px/1.6 var(--mono);color:#1F2E38;max-height:340px;overflow:auto}
+.copy{position:absolute;top:8px;right:8px;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--navy);font:600 13px var(--font);padding:5px 10px;border-radius:var(--radius-s);cursor:pointer}
+.copy:hover{border-color:var(--navy)}
+.copy.done{background:var(--green-bg);border-color:var(--green-ink);color:var(--green-ink)}
+.prompt pre{padding-top:40px}
+.note{font-size:14.5px;color:var(--muted);margin-top:8px}
+
+/* erros */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);font:500 14px var(--font);color:var(--ink);padding:6px 13px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.errs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:860px){.errs{grid-template-columns:1fr}}
+.ec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:22px 24px}
+.ec header{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:10px}
+.ec h3{font-size:19px;color:var(--alert)}
+.ec .where{font-size:13px;color:var(--muted);white-space:nowrap}
+.ec dl{margin:0;display:grid;grid-template-columns:108px 1fr;gap:8px 14px;font-size:15.5px}
+.ec dt{color:var(--muted);font-weight:500}
+.ec dd{margin:0}
+.ec .ex{background:var(--warn-bg);border-radius:var(--radius-s);padding:10px 12px;font-size:15px;margin-top:12px}
+.ec .ex b{color:var(--warn)}
+@media (max-width:520px){.ec dl{grid-template-columns:1fr}.ec dt{margin-top:6px}}
+
+/* exemplo */
+.case{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:28px 30px;margin-bottom:28px}
+@media (max-width:640px){.case,.detail{padding:20px 18px}}
+.case h3{font-size:22px;color:var(--navy-ink);margin-bottom:8px}
+.case > p{max-width:72ch}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;margin-top:14px}
+.tbl th{text-align:left;font-weight:600;color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 10px;vertical-align:bottom}
+.tbl td{border-bottom:1px solid var(--line);padding:10px;vertical-align:top}
+.tbl td:first-child{font-weight:500}
+.scroll{overflow-x:auto}
+.v{display:inline-block;font-size:13px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.v.ok{background:var(--green-bg);color:var(--green-ink)}
+.v.no{background:var(--alert-bg);color:var(--alert)}
+.v.at{background:var(--warn-bg);color:var(--warn)}
+.quote{font-size:14.5px;color:var(--muted);font-style:italic}
+.setup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:16px 0 6px}
+@media (max-width:860px){.setup{grid-template-columns:1fr}}
+.setup div{border-top:3px solid var(--navy);padding-top:10px;font-size:15.5px}
+.setup b{display:block;color:var(--navy);margin-bottom:4px}
+.lessons{counter-reset:l;list-style:none;padding:0;margin:14px 0 0;display:grid;gap:12px}
+.lessons li{counter-increment:l;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.lessons li::before{content:counter(l);width:28px;height:28px;border-radius:50%;background:var(--green);color:var(--navy-ink);display:grid;place-items:center;font-weight:700;font-size:14px}
+
+/* ferramentas */
+.toolgrid td:first-child a{font-weight:600}
+
+/* kit */
+.kit{display:grid;gap:22px}
+.ki{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:26px 28px;display:grid;grid-template-columns:1fr 320px;gap:28px}
+@media (max-width:860px){.ki{grid-template-columns:1fr}}
+.ki h3{font-size:21px;color:var(--navy-ink);margin-bottom:6px}
+.ki .for{font-size:14px;color:var(--muted);margin-bottom:12px}
+.ki ol{margin:0;padding-left:20px}
+.ki ol li{margin-bottom:6px}
+.dl{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:11px 16px;border-radius:var(--radius-s)}
+.dl:hover{background:var(--navy-2);color:#fff}
+.dl small{font-weight:400;opacity:.8}
+.side{border-left:1px solid var(--line);padding-left:24px}
+@media (max-width:860px){.side{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px}}
+.side p{font-size:15px}
+.all{display:flex;flex-wrap:wrap;align-items:center;gap:16px;background:var(--green-bg);border:1px solid #D3E2A6;border-radius:var(--radius-m);padding:20px 24px;margin-bottom:26px}
+.all p{margin:0;flex:1 1 300px}
+
+/* papeis */
+.role{display:inline-block;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:999px;line-height:1.5;white-space:nowrap}
+.role.ia{border:1.5px solid var(--navy);color:var(--navy);background:var(--surface)}
+.role.eq{background:var(--navy);color:#fff;border:1.5px solid var(--navy)}
+.role.es{background:var(--green);color:var(--navy-ink);border:1.5px solid var(--green)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:15px;color:var(--muted)}
+.legend .role{margin-left:8px}.legend .role:first-child{margin-left:0}
+.quem{display:grid;gap:8px;margin-top:4px}
+.quem div{display:grid;grid-template-columns:104px 1fr;gap:10px;align-items:start;font-size:15.5px}
+.quem .role{justify-self:start}
+.quem .must{font-weight:600;color:var(--green-ink)}
+.st .tt .tag{display:inline-block;margin-top:5px}
+.who{margin-top:44px}
+.who h3{font-size:22px;color:var(--navy-ink);margin-bottom:6px}
+.who td .role{margin-bottom:4px}
+/* caso */
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 26px}
+.jump a{font-size:14px;font-weight:600;text-decoration:none;color:var(--navy);background:var(--surface);border:1px solid var(--line);padding:5px 11px;border-radius:999px}
+.jump a:hover{border-color:var(--navy)}
+.wk{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:26px 30px;margin-bottom:20px;scroll-margin-top:70px}
+@media (max-width:640px){.wk{padding:20px 18px}}
+.wk header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:16px}
+.wk .n{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}
+.wk h3{font-size:22px;color:var(--navy-ink)}
+.wk .roles{display:flex;gap:6px;margin-left:auto}
+@media (max-width:640px){.wk .roles{margin-left:0;width:100%}}
+.wk-body.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:28px;align-items:start}
+@media (max-width:960px){.wk-body.two{grid-template-columns:1fr}}
+.said,.human,.expert{border-radius:var(--radius-s);padding:12px 15px;margin:12px 0;font-size:15.5px}
+.said{background:#F1F4F6;border-left:3px solid var(--navy)}
+.said.bad{border-left-color:var(--alert);background:var(--alert-bg)}
+.human{background:#EAF0F5;border-left:3px solid var(--navy)}
+.expert{background:var(--green-bg);border-left:3px solid var(--green)}
+.said b,.human b,.expert b{display:block;color:var(--navy-ink);margin-bottom:3px}
+.expert ul{margin:8px 0 0;padding-left:20px}
+.figs{display:grid;gap:16px}
+figure{margin:0}
+figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius-s);background:#000}
+figure a:focus-visible img{outline:3px solid var(--green)}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:6px}
+.tbl.small{font-size:14.5px}
+.tbl.small td,.tbl.small th{padding:8px}
+.score .nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:10px}
+@media (max-width:760px){.score .nums{grid-template-columns:1fr 1fr}}
+.score .nums div{border-top:3px solid var(--green);padding-top:10px;font-size:15px;color:var(--muted)}
+.score .nums b{display:block;font-size:40px;line-height:1.05;color:var(--navy-ink);font-weight:700}
+.scope{background:var(--warn-bg);border:1px solid #EBD7AE;border-radius:var(--radius-m);padding:16px 20px;font-size:15.5px;margin-bottom:28px;max-width:80ch}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:14.5px}
+footer p{max-width:80ch}
+@media print{.tabs,.copy,.top .rail-mark{display:none}section.panel{display:block!important}.detail{position:static}}
+
+/* faixa do fio condutor */
+.fio{margin-top:32px;border-top:1px solid rgba(255,255,255,.18);padding-top:16px;font-size:16px;color:#E6EEF4;max-width:80ch}
+.fio strong{color:#fff;font-weight:600}
+/* duas trilhas do caminho */
+.track{margin-top:8px}
+.track + .track{margin-top:48px}
+.track > h3{font-size:22px;color:var(--navy-ink);margin-bottom:16px}
+.st .tt .roles{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.st .tt .roles .role{display:inline-block;font-size:12.5px;line-height:1.5}
+.st .tt .role.ia{color:var(--navy)}.st .tt .role.eq{color:#fff}.st .tt .role.es{color:var(--navy-ink)}
+.detail .roles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.detail .body{margin-bottom:6px}
+.detail .lbl{margin-top:14px;padding:10px 14px;border-radius:var(--radius-s);font-size:15.5px}
+.detail .lbl b{color:var(--navy-ink)}
+.detail .lbl.alerta{background:var(--warn-bg);border-left:3px solid var(--warn)}
+.detail .lbl.alerta b{color:var(--warn)}
+.detail .lbl.conf{background:var(--green-bg);border-left:3px solid var(--green)}
+.detail .lbl.real{background:#EAF0F5;border-left:3px solid var(--navy)}
+/* galeria de capturas */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-top:20px;align-items:start}
+.case .steps{margin:6px 0 14px;padding-left:22px}
+.case .steps li{margin-bottom:6px}
+.inl b{display:inline!important;margin:0!important}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <svg class="rail-mark" width="420" height="300" viewBox="0 0 420 300" aria-hidden="true">
+      <path d="M20 40 H400" stroke="#fff" stroke-opacity=".22" stroke-width="3"/>
+      <g fill="#0E3D5F" stroke="#fff" stroke-width="3"><circle cx="40" cy="40" r="14"/><circle cx="120" cy="40" r="14"/><circle cx="200" cy="40" r="14"/><circle cx="280" cy="40" r="14"/><circle cx="360" cy="40" r="14"/></g>
+      <rect x="152" y="32" width="16" height="16" transform="rotate(45 160 40)" fill="#A1C62E"/>
+      <rect x="312" y="32" width="16" height="16" transform="rotate(45 320 40)" fill="#A1C62E"/>
+      <path d="M360 54 V90 H200 V54" fill="none" stroke="#A1C62E" stroke-width="2" stroke-dasharray="5 5"/>
+    </svg>
+    <h1>Análise de dados com IA</h1>
+    <p class="lead">Como usar IA para codificar entrevistas e analisar bases sem perder o controle do que a fonte diz.</p>
+    <div class="fio"><strong>Todo código e todo número precisam apontar para a fonte.</strong> O que a IA não consegue mostrar no texto ou no dado não entra na análise.</div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Seções">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="t-caminho" aria-controls="caminho" aria-selected="true">O caminho</button>
+    <button class="tab" role="tab" id="t-erros" aria-controls="erros" aria-selected="false">Erros e soluções</button>
+    <button class="tab" role="tab" id="t-exemplo" aria-controls="exemplo" aria-selected="false">Exemplo conferido</button>
+    <button class="tab" role="tab" id="t-ferramentas" aria-controls="ferramentas" aria-selected="false">Ferramentas</button>
+    <button class="tab" role="tab" id="t-kit" aria-controls="kit" aria-selected="false">Kit para baixar</button>
+  </div>
+</nav>
+
+<main>
+<section class="panel on" id="caminho" role="tabpanel" aria-labelledby="t-caminho">
+  <div class="wrap">
+    <div class="intro">
+      <h2>O caminho</h2>
+      <p class="legend"><span class="role ia">IA</span> a IA ajuda <span class="role eq">Equipe</span> decisão da equipe <span class="role es">Especialista</span> exige quem conhece o tema</p>
+    </div>
+    <div class="track">
+      <h3>Dados qualitativos (entrevistas, grupos focais, respostas abertas)</h3>
+      <div class="flow"><ol class="rail" data-g="quali"></ol><aside class="detail desk" data-g="quali" aria-live="polite"></aside></div>
+    </div>
+    <div class="track">
+      <h3>Dados quantitativos (bases, microdados, planilhas)</h3>
+      <div class="flow"><ol class="rail" data-g="quanti"></ol><aside class="detail desk" data-g="quanti" aria-live="polite"></aside></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="erros" role="tabpanel" aria-labelledby="t-erros">
+  <div class="wrap">
+    <div class="intro"><h2>Erros e soluções</h2></div>
+    <div class="case">
+      <div class="scroll"><table class="tbl">
+        <thead><tr><th>Erro</th><th>Como aparece</th><th>Solução</th></tr></thead>
+        <tbody>
+<tr><td>Categoria forçada</td><td>todo trecho ganha um código, inclusive o que não fala do tema</td><td>regra explícita de SEM CÓDIGO no prompt e conferência dos trechos codificados com uma frase só</td></tr>
+<tr><td>Citação inventada ou recortada</td><td>frase parecida com a fala, ou cortada de um jeito que muda o sentido</td><td>exigir citação literal entre aspas e conferir letra por letra</td></tr>
+<tr><td>Ironia lida ao pé da letra</td><td>"adorei" vira avaliação positiva</td><td>marcar DÚVIDA e revisar à mão as falas com ironia</td></tr>
+<tr><td>Contexto perdido</td><td>"essa sim funcionou" citado sem dizer qual formação</td><td>ler cada trecho com o anterior; incluir o contexto na citação</td></tr>
+<tr><td>Voz que destoa apagada</td><td>o resumo fica com a média e some quem tem experiência diferente</td><td>pedir separadamente o que cada entrevistado diz de único</td></tr>
+<tr><td>Fala genérica vira evidência</td><td>"formação é sempre boa" usado como avaliação</td><td>tratar falas vagas como SEM CÓDIGO ou DÚVIDA</td></tr>
+<tr><td>Contagem vira importância</td><td>quadro com número de trechos por categoria</td><td>reportar frequência só como descrição, nunca como peso</td></tr>
+<tr><td>Unidade de contagem errada</td><td>soma por escola tratada como número de pessoas</td><td>dizer a unidade antes e conferir contra um total publicado</td></tr>
+<tr><td>Arquivo ou variável inventados</td><td>código para um arquivo que não existe na base pública</td><td>colar a lista de colunas e o dicionário antes de pedir o código</td></tr>
+<tr><td>Rótulo errado no resultado</td><td>a ressalva fica no chat e o código imprime "Total de docentes"</td><td>ler o print final do código e corrigir o rótulo</td></tr>
+<tr><td>Dado pessoal na ferramenta</td><td>transcrição com nome e escola colada num chat aberto</td><td>anonimizar antes; usar ferramenta institucional quando houver</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="exemplo" role="tabpanel" aria-labelledby="t-exemplo">
+  <div class="wrap">
+    <div class="intro">
+      <h2>Exemplo conferido</h2>
+      <p>Os dois casos abaixo foram rodados de verdade no ChatGPT, em outubro de 2026, e conferidos contra a fonte. As entrevistas do caso qualitativo são fictícias e foram escritas para treino.</p>
+    </div>
+
+    <article class="case" id="caso1">
+      <h3>Caso 1 · Quantos professores tem a educação básica em São Paulo?</h3>
+      <p><b>Pergunta:</b> número de docentes da educação básica de São Paulo no Censo Escolar 2024.</p>
+      <p>Passo a passo do teste (com os prints):</p>
+      <ol class="steps">
+        <li>Sem dados, a IA não inventou número e alertou para a diferença entre professores e vínculos.</li>
+        <li>Pedido o código, escreveu para um arquivo de docentes com identificador individual, que não existe nos microdados públicos.</li>
+        <li>Avisada de que só há arquivo de escolas, alertou que a soma daria vínculos e pediu a lista de colunas.</li>
+        <li>Com as colunas, somou QT_DOC_BAS e imprimiu o resultado como "Total de docentes". A ressalva ficou só no texto do chat.</li>
+      </ol>
+      <div class="said bad inl"><b>Resultado:</b> 603.604 pela soma. A Sinopse Estatística diz 500.006. Diferença de 20,7%, porque quem dá aula em mais de uma escola aparece mais de uma vez. O próprio dicionário do Inep avisa que a soma dos microdados não dá o total da UF.</div>
+      <div class="human inl"><b>Lição:</b> o aviso fica no chat; o número sai do código com o nome errado.</div>
+      <p class="note">Fonte: Inep, Microdados e Sinopse Estatística da Educação Básica 2024 (tabela 2.1).</p>
+      <div class="gallery">
+<figure><a href="assets/caso-quanti/T1a_pergunta.png"><img src="assets/caso-quanti/T1a_pergunta.png" alt="Mensagem pedindo o número de docentes sem pesquisar na web" loading="lazy"></a><figcaption>Sem dados: o pedido, sem pesquisa na web.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T1b_resposta.png"><img src="assets/caso-quanti/T1b_resposta.png" alt="Resposta dizendo que não sabe o número com segurança" loading="lazy"></a><figcaption>Não inventou número e alertou para professores e vínculos.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T2a_pergunta.png"><img src="assets/caso-quanti/T2a_pergunta.png" alt="Mensagem pedindo o código em Python" loading="lazy"></a><figcaption>Pedido o código, sem dizer qual arquivo.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T2b_codigo.png"><img src="assets/caso-quanti/T2b_codigo.png" alt="Código que lê um arquivo de docentes e usa um identificador individual" loading="lazy"></a><figcaption>Código para um arquivo de docentes com identificador individual, que não existe nos microdados públicos.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T2c_ressalva.png"><img src="assets/caso-quanti/T2c_ressalva.png" alt="Texto com a ressalva sobre o identificador individual" loading="lazy"></a><figcaption>A ressalva sobre o identificador ficou no texto.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T3a_pergunta.png"><img src="assets/caso-quanti/T3a_pergunta.png" alt="Mensagem dizendo que só há arquivo com uma linha por escola" loading="lazy"></a><figcaption>Avisada de que só há arquivo de escolas.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T3b_codigo.png"><img src="assets/caso-quanti/T3b_codigo.png" alt="Código para procurar variáveis de docentes no arquivo de escolas" loading="lazy"></a><figcaption>Alertou que a soma daria vínculos.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T3c_codigo.png"><img src="assets/caso-quanti/T3c_codigo.png" alt="Código com variável de nome ilustrativo e aviso" loading="lazy"></a><figcaption>Nome de variável ilustrativo, com aviso.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T3d_ressalva.png"><img src="assets/caso-quanti/T3d_ressalva.png" alt="Resposta pedindo a lista de colunas ou o dicionário de dados" loading="lazy"></a><figcaption>Pediu a lista de colunas.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T4a_pergunta.png"><img src="assets/caso-quanti/T4a_pergunta.png" alt="Mensagem com a lista de colunas de docentes" loading="lazy"></a><figcaption>Com as colunas, o pedido do código final.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T4_codigo.png"><img src="assets/caso-quanti/T4_codigo.png" alt="Resposta com a variável escolhida e o código" loading="lazy"></a><figcaption>Somou QT_DOC_BAS.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T4_codigo_recorte.png"><img src="assets/caso-quanti/T4_codigo_recorte.png" alt="Bloco de código que soma QT_DOC_BAS e imprime Total de docentes" loading="lazy"></a><figcaption>O código imprime o resultado como &quot;Total de docentes&quot;.</figcaption></figure>
+<figure><a href="assets/caso-quanti/T4c_ressalva.png"><img src="assets/caso-quanti/T4c_ressalva.png" alt="Texto com a ressalva sobre docentes contados duas vezes" loading="lazy"></a><figcaption>A ressalva ficou só no texto do chat.</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="case" id="caso2">
+      <h3>Caso 2 · O que professores dizem sobre formação continuada</h3>
+      <p><b>Material:</b> 20 trechos fictícios de entrevistas com cinco professores, livro de códigos com seis códigos.</p>
+      <div class="said inl"><b>Codificação com livro fechado:</b> a IA acertou a maior parte, pegou a ironia, deixou sem código o trecho fora do tema e a fala genérica, e as citações conferiram. O mais útil foram as dúvidas que ela levantou sobre o livro de códigos.</div>
+      <div class="said bad inl"><b>Codificação aberta:</b> propôs sete categorias. Quatro erros: a professora da escola do campo ficou fora da lista de falas que destoam, mesmo com pedido explícito; a fala genérica virou avaliação da formação; um trecho sobre grupo de estudos foi forçado em "participação nas decisões"; e uma citação perdeu o contexto ("essa sim funcionou").</div>
+      <div class="human inl"><b>Lição:</b> com regra clara a IA segue a regra; quando ela escolhe o que destacar, quem destoa some.</div>
+      <div class="gallery">
+<figure><a href="assets/caso-quali/P1_01.png"><img src="assets/caso-quali/P1_01.png" alt="Mensagem com o prompt de codificação com livro de códigos" loading="lazy"></a><figcaption>Codificação com livro fechado: o pedido.</figcaption></figure>
+<figure><a href="assets/caso-quali/P1_02.png"><img src="assets/caso-quali/P1_02.png" alt="Tabela de codificação dos primeiros trechos" loading="lazy"></a><figcaption>Citações literais; a ironia apontada.</figcaption></figure>
+<figure><a href="assets/caso-quali/P1_03.png"><img src="assets/caso-quali/P1_03.png" alt="Tabela de codificação com um trecho sem código" loading="lazy"></a><figcaption>O trecho fora do tema ficou sem código.</figcaption></figure>
+<figure><a href="assets/caso-quali/P1_04.png"><img src="assets/caso-quali/P1_04.png" alt="Tabela de codificação, continuação" loading="lazy"></a><figcaption>Codificação, continuação.</figcaption></figure>
+<figure><a href="assets/caso-quali/P1_05.png"><img src="assets/caso-quali/P1_05.png" alt="Fim da tabela de codificação" loading="lazy"></a><figcaption>A fala genérica ficou sem código.</figcaption></figure>
+<figure><a href="assets/caso-quali/P1_06.png"><img src="assets/caso-quali/P1_06.png" alt="Observações da IA sobre trechos sem código e casos que exigem cautela" loading="lazy"></a><figcaption>As dúvidas que ela levantou sobre o livro de códigos.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_01.png"><img src="assets/caso-quali/P2_01.png" alt="Mensagem com o prompt de codificação aberta" loading="lazy"></a><figcaption>Codificação aberta: o pedido.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_02.png"><img src="assets/caso-quali/P2_02.png" alt="Início da resposta com a primeira categoria" loading="lazy"></a><figcaption>Propôs sete categorias.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_03.png"><img src="assets/caso-quali/P2_03.png" alt="Categoria sobre condições de tempo e acesso" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_04.png"><img src="assets/caso-quali/P2_04.png" alt="Categoria sobre formatos" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_05.png"><img src="assets/caso-quali/P2_05.png" alt="Categoria sobre acompanhamento" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_06.png"><img src="assets/caso-quali/P2_06.png" alt="Categoria sobre participação nas decisões" loading="lazy"></a><figcaption>O trecho sobre grupo de estudos foi forçado em &quot;participação nas decisões&quot;.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_07.png"><img src="assets/caso-quali/P2_07.png" alt="Categoria sobre certificação e carreira" loading="lazy"></a><figcaption>Categorias, continuação.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_08.png"><img src="assets/caso-quali/P2_08.png" alt="Categoria de avaliação geral da formação" loading="lazy"></a><figcaption>A fala genérica virou avaliação da formação; a citação perdeu o contexto (&quot;essa sim funcionou&quot;).</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_09.png"><img src="assets/caso-quali/P2_09.png" alt="Lista de trechos que não se encaixam nas categorias" loading="lazy"></a><figcaption>O trecho fora do tema ficou sem categoria.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_10.png"><img src="assets/caso-quali/P2_10.png" alt="Lista de falas que destoam da maioria" loading="lazy"></a><figcaption>A professora da escola do campo ficou fora da lista de falas que destoam.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_11.png"><img src="assets/caso-quali/P2_11.png" alt="Quadro consolidado com contagem de trechos e professores" loading="lazy"></a><figcaption>Quadro com número de trechos por categoria.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_12.png"><img src="assets/caso-quali/P2_12.png" alt="Considerações analíticas da resposta" loading="lazy"></a><figcaption>Considerações finais.</figcaption></figure>
+<figure><a href="assets/caso-quali/P2_13.png"><img src="assets/caso-quali/P2_13.png" alt="Recomendação para a codificação" loading="lazy"></a><figcaption>Recomendação da própria IA para a codificação.</figcaption></figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="panel" id="ferramentas" role="tabpanel" aria-labelledby="t-ferramentas">
+  <div class="wrap">
+    <div class="intro"><h2>Ferramentas</h2></div>
+    <div class="case">
+      <div class="scroll"><table class="tbl toolgrid"><tbody>
+<tr><td><b>Chats de uso geral (ChatGPT, Claude, Gemini):</b></td><td>bons para codificar conjuntos pequenos e testar o livro de códigos. Use um projeto ou Gem com as instruções do kit para não repetir as regras a cada conversa.</td></tr>
+<tr><td><b>Softwares de análise qualitativa (como NVivo, ATLAS.ti e MAXQDA):</b></td><td>já trazem recursos de IA e guardam a codificação junto do texto, o que facilita conferir. Valem para conjuntos grandes.</td></tr>
+<tr><td><b>Planilha:</b></td><td>para até algumas dezenas de trechos, a planilha do kit resolve e deixa a conferência visível.</td></tr>
+<tr><td><b>Python ou R:</b></td><td>para dados quantitativos, peça o código à IA, mas rode você mesmo e compare com um total publicado.</td></tr>
+<tr><td><b>Dados pessoais:</b></td><td>prefira a ferramenta institucional da organização quando houver, e anonimize antes em qualquer caso.</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="kit" role="tabpanel" aria-labelledby="t-kit">
+  <div class="wrap">
+    <div class="intro"><h2>Kit para baixar</h2></div>
+    <div class="all">
+      <p><strong>kit-completo.zip</strong> · tudo acima</p>
+      <a class="dl" href="downloads/kit-completo.zip" download>Baixar o kit completo <small>.zip</small></a>
+    </div>
+    <div class="kit">
+      <article class="ki">
+        <div>
+          <h3>Prompts por etapa</h3>
+          <p>prompts-por-etapa.md · os prompts das etapas do caminho, quali e quanti</p>
+          
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/prompts-por-etapa.md" download>Baixar <small>.md</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Modelo de livro de códigos</h3>
+          <p>livro-de-codigos-modelo.md · modelo de livro de códigos com as regras de SEM CÓDIGO, DÚVIDA e citação literal</p>
+          
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/livro-de-codigos-modelo.md" download>Baixar <small>.md</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Planilha de codificação</h3>
+          <p>planilha-codificacao.xlsx · planilha de codificação com validação do tom (mesma estrutura da usada na sessão, sem os trechos)</p>
+          
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/planilha-codificacao.xlsx" download>Baixar <small>.xlsx</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Checklist de verificação</h3>
+          <p>checklist-verificacao.md · checklist quali (7 perguntas do slide 19) e quanti (unidade, colunas, código, número publicado, rótulo)</p>
+          
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/checklist-verificacao.md" download>Baixar <small>.md</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Instruções para um projeto</h3>
+          <p>instrucoes-projeto.md · instruções para colar num projeto do ChatGPT, do Claude ou num Gem</p>
+          <h4 style="font-size:15px;color:var(--navy);margin:16px 0 8px">Como usar</h4><ol><li>No ChatGPT: crie um projeto e cole o texto nas instruções do projeto.</li><li>No Gemini: crie um Gem e cole o texto nas instruções.</li><li>No Claude: crie um projeto e cole o texto nas instruções do projeto.</li><li>Teste com alguns trechos que você já codificou e confira antes de confiar.</li></ol><p class="note">Dados pessoais só entram depois de anonimizados, e de preferência na ferramenta institucional.</p>
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/instrucoes-projeto.md" download>Baixar <small>.md</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Skill de codificação para o Claude</h3>
+          <p>skill-codificacao-qualitativa.zip · skill do Claude para codificação com livro fechado e conferência de citações</p>
+          <h4 style="font-size:15px;color:var(--navy);margin:16px 0 8px">Como instalar</h4><ol><li>Baixe o arquivo <code>skill-codificacao-qualitativa.zip</code>. Não descompacte.</li><li>Em Configurações, na área de capacidades, confirme que a execução de código está ligada. Em planos Team e Enterprise, quem administra a organização libera isso.</li><li>Vá em Personalizar, depois Skills. Clique em "+", "Criar skill" e "Enviar uma skill", e escolha o .zip.</li><li>Num chat novo, cole o livro de códigos e os trechos e peça a codificação.</li></ol><p class="note">Os nomes dos menus mudam com o tempo. A <a href="https://support.claude.com/en/articles/12512180-use-skills-in-claude">ajuda oficial sobre skills</a> tem o caminho atualizado.</p>
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/skill-codificacao-qualitativa.zip" download>Baixar <small>.zip</small></a>
+        </div>
+      </article>
+      <article class="ki">
+        <div>
+          <h3>Conjunto de treino</h3>
+          <p>conjunto-de-treino.zip · os 20 trechos fictícios, o livro de códigos e a codificação de referência, para treinar</p>
+          
+        </div>
+        <div class="side">
+          <a class="dl" href="downloads/conjunto-de-treino.zip" download>Baixar <small>.zip</small></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Material de apoio sobre uso de IA na análise de dados, outubro de 2026. Os exemplos são respostas reais de uma ferramenta de IA, conferidas contra a fonte; as entrevistas do caso qualitativo são fictícias. Ferramentas e modelos mudam rápido; o método de conferência é o que vale levar.</p>
+  </div>
+</footer>
+
+<script>
+const ROLE={"ia": "<span class=\"role ia\">IA</span>", "eq": "<span class=\"role eq\">Equipe</span>", "es": "<span class=\"role es\">Especialista</span>"};
+const DATA={quali:[{"id": 1, "t": "Preparar e anonimizar", "r": ["eq"], "body": "Tirar nome, escola, cidade e qualquer detalhe que identifique a pessoa antes de colar o texto em qualquer ferramenta. Dividir as transcrições em trechos com identificador (P1-01, P1-02...).", "x": [["alerta", "Sinal de alerta:", "a transcrição ainda tem nome de pessoa, de escola ou de município."], ["conf", "Conferência:", "buscar nomes próprios no arquivo antes de seguir."]]}, {"id": 2, "t": "Definir a pergunta e o livro de códigos", "r": ["eq", "es"], "body": "A equipe escreve a pergunta da análise e um livro de códigos curto: nome, definição de uma linha e regra para quando nenhum código couber. A IA pode propor um rascunho, mas quem fecha é a equipe.", "x": [["alerta", "Sinal de alerta:", "código sem definição, ou dois códigos que dizem quase a mesma coisa."]]}, {"id": 3, "t": "Testar o livro de códigos com a IA", "r": ["ia", "eq"], "body": "Pedir à IA que aplique o livro a uma amostra e liste as dúvidas que teve. As dúvidas dela mostram onde as definições estão frouxas.", "x": [["real", "Exemplo real:", "no nosso teste, a IA perguntou se acompanhamento \"durante\" a formação conta como \"acompanhamento depois\", e se uma especialização conta como formação. As duas perguntas eram falhas do livro, não da IA."], ["conf", "Conferência:", "ajustar o livro antes de codificar o conjunto todo."]]}, {"id": 4, "t": "Codificar com livro fechado", "r": ["ia"], "body": "Prompt com o livro de códigos, regra de SEM CÓDIGO, citação literal obrigatória para cada código e tom (positivo, negativo, neutro, misto ou DÚVIDA).", "x": [["alerta", "Sinal de alerta:", "código aplicado sem citação, ou citação que não está no trecho."]]}, {"id": 5, "t": "Conferir citações e códigos", "r": ["eq"], "body": "Conferir cada citação letra por letra contra o trecho. Revisar os trechos marcados como DÚVIDA, os SEM CÓDIGO e os que têm ironia ou dependem da fala anterior.", "x": [["conf", "Conferência:", "numa amostra de pelo menos 20%, comparar com a codificação de uma pessoa da equipe."]]}, {"id": 6, "t": "Codificação aberta ou resumo", "r": ["ia"], "body": "Pedir categorias que a equipe não previu. Útil para achar temas novos; arriscado para conclusões.", "x": [["alerta", "Sinal de alerta:", "categoria genérica (\"avaliação geral\") que absorve qualquer fala."]]}, {"id": 7, "t": "Procurar quem destoa, separado", "r": ["eq", "es"], "body": "Pedir à parte, entrevistado por entrevistado, o que cada um diz que os outros não dizem. Não confiar na lista de \"falas que destoam\" de um resumo geral.", "x": [["real", "Exemplo real:", "no nosso teste, mesmo com pedido explícito, a professora de escola do campo com turma multisseriada ficou fora da lista de falas que destoam."]]}, {"id": 8, "t": "Escrever a síntese", "r": ["eq"], "body": "Cada afirmação aponta para os IDs dos trechos. Frequência não é importância: \"três professores disseram\" não quer dizer que é o problema principal.", "x": []}, {"id": 9, "t": "Registrar as decisões", "r": ["eq"], "body": "Guardar o livro de códigos final, os prompts usados, a ferramenta, a data e as mudanças feitas depois da conferência.", "x": []}],quanti:[{"id": 1, "t": "Dizer a unidade de contagem", "r": ["eq", "es"], "body": "Antes de pedir o código, escrever o que se quer contar: pessoas, vínculos, matrículas, escolas.", "x": []}, {"id": 2, "t": "Mostrar à IA a estrutura real da base", "r": ["ia"], "body": "Colar a lista de colunas e o trecho do dicionário de dados. Sem isso a IA inventa nome de arquivo e de variável.", "x": []}, {"id": 3, "t": "Ler o código linha por linha", "r": ["eq"], "body": "Filtro, variável, tratamento de vazios e, sobretudo, o rótulo do resultado.", "x": []}, {"id": 4, "t": "Reproduzir um número publicado", "r": ["eq"], "body": "Antes de confiar, rodar o código para um total que já existe numa publicação oficial e comparar.", "x": []}, {"id": 5, "t": "Registrar", "r": ["eq"], "body": "Fonte, ano, arquivo, código e a diferença em relação ao número publicado, com a explicação.", "x": []}]};
+/* abas */
+const tabs=[...document.querySelectorAll('.tab')];
+function show(id,push){tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1});
+ document.querySelectorAll('section.panel').forEach(p=>p.classList.toggle('on',p.id===id));
+ if(push)history.replaceState(null,'','#'+id);}
+tabs.forEach((t,i)=>{t.addEventListener('click',()=>{show(t.getAttribute('aria-controls'),true);window.scrollTo({top:document.querySelector('.tabs').offsetTop,behavior:'smooth'})});
+ t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=tabs[(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length];n.focus();n.click()}})});
+const h=location.hash.slice(1); if(['caminho','erros','exemplo','ferramentas','kit'].includes(h))show(h,false);
+
+
+function detailHTML(s){
+ return `<h3>${s.id} · ${s.t}</h3><div class="roles">${s.r.map(k=>ROLE[k]).join('')}</div><p class="body">${s.body}</p>`+
+  s.x.map(([c,l,v])=>`<div class="lbl ${c}"><b>${l}</b> ${v}</div>`).join('');
+}
+document.querySelectorAll('.rail').forEach(rail=>{
+ const g=rail.dataset.g, detail=document.querySelector(`.detail.desk[data-g="${g}"]`);
+ DATA[g].forEach(s=>{
+  const li=document.createElement('li'); li.className='st'; li.dataset.id=s.id;
+  li.innerHTML=`<button type="button" aria-expanded="false"><span class="dot">${s.id}</span><span class="tt"><b>${s.t}</b><span class="roles">${s.r.map(k=>ROLE[k]).join('')}</span></span></button><div class="detail inline"></div>`;
+  li.querySelector(':scope > button').addEventListener('click',()=>select(s.id,true));
+  rail.appendChild(li);
+ });
+ function select(id,user){
+  const s=DATA[g].find(x=>x.id===id);
+  rail.querySelectorAll('.st').forEach(li=>{const on=+li.dataset.id===id;li.classList.toggle('on',on);li.querySelector(':scope > button').setAttribute('aria-expanded',on);li.querySelector('.detail.inline').innerHTML=on?detailHTML(s):''});
+  detail.innerHTML=detailHTML(s);
+  if(user&&window.matchMedia('(max-width:900px)').matches){rail.querySelector(`.st[data-id="${id}"]`).scrollIntoView({behavior:'smooth',block:'start'})}
+ }
+ select(1,false);
+});
+</script>
+</body>
+</html>
